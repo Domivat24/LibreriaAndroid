@@ -1,5 +1,7 @@
 package dam.curso2022.u2aev1.u6aev1listado;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,7 +32,8 @@ public class AdaptadorLibros extends RecyclerView.Adapter<AdaptadorLibros.ViewHo
     @Override
     public void onBindViewHolder(ViewHolderLibros viewHolderLibros, int i) {
         viewHolderLibros.etTitulo.setText(listLibros.get(i).getTitulo());
-        viewHolderLibros.portada.setImageResource(listLibros.get(i).getPortada());
+        Bitmap bitmap = BitmapFactory.decodeByteArray(listLibros.get(i).getPortada(), 0, listLibros.get(i).getPortada().length);
+        viewHolderLibros.portada.setImageBitmap(bitmap);
     }
 
     @Override
