@@ -1,7 +1,8 @@
 package dam.curso2022.u2aev1.u6aev1listado;
 
+import static dam.curso2022.u2aev1.u6aev1listado.MainActivity.getBitmapFromMemCache;
+
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.widget.ImageView;
@@ -13,6 +14,7 @@ public class LibroDetalle extends AppCompatActivity {
     private TextView titulo, sinopsis;
     private ImageView portada;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -20,13 +22,14 @@ public class LibroDetalle extends AppCompatActivity {
         titulo = findViewById(R.id.tvTitulo);
         sinopsis = findViewById(R.id.tvSinopsis);
         portada = findViewById(R.id.portada);
-
-        Libro libro = (Libro) getIntent().getSerializableExtra("libro");
-        Bitmap bitmap = BitmapFactory.decodeByteArray(libro.getPortada(), 0, libro.getPortada().length);
+        //recojo los datos del intent y del cache
+        titulo.setText(getIntent().getStringExtra("titulo"));
+        sinopsis.setText(getIntent().getStringExtra("sinopsis"));
+        Bitmap bitmap = getBitmapFromMemCache(getIntent().getStringExtra("portada"));
         portada.setImageBitmap(bitmap);
-        titulo.setText(libro.getTitulo());
-        sinopsis.setText(libro.getSinopsis());
 
         sinopsis.setMovementMethod(new ScrollingMovementMethod());
     }
+
+
 }
