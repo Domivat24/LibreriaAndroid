@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="HardcodedText">
+
+    <item
+        android:id="@+id/nav_cuenta"
+        android:title="Mi cuenta" />
+
+    <item
+        android:id="@+id/nav_inicio"
+        android:title="Inicio" />
+
+    <item
+        android:id="@+id/nav_favoritos"
+        android:title="Favoritos" />
+
+    <item
+        android:id="@+id/nav_cerrar_sesion"
+        android:title="Cerrar sesión" />
+
+</menu>
