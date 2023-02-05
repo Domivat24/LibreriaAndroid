@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "497902863299",
+    "project_id": "proyecto-c5695",
+    "storage_bucket": "proyecto-c5695.appspot.com",
+    "firebase_url": "https://proyecto-c5695-default-rtdb.europe-west1.firebasedatabase.app/"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:497902863299:android:3426a6e714509cc4263376",
+        "android_client_info": {
+          "package_name": "dam.curso2022.u2aev1.u6aev1listado"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "497902863299-rads4jnbc0mej73mvb0abd69kl526e2c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7GoT8nL1Zd7CcD9V8QWDo3pznG3FgPgM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "497902863299-rads4jnbc0mej73mvb0abd69kl526e2c.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

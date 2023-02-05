@@ -8,10 +8,20 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.LruCache;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import org.json.JSONArray;
 
@@ -23,8 +33,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements AdaptadorLibros.ItemClickListener, NavigationView.OnNavigationItemSelectedListener {
     ProgressDialog pd;
     ArrayList<Libro> listLibros;
     RecyclerView recycler;
@@ -38,6 +50,14 @@ public class MainActivity extends AppCompatActivity {
         recycler = findViewById(R.id.recyclerId);
         recycler.setLayoutManager(new GridLayoutManager(this, 2));
         listLibros = new ArrayList<>();
+
+        //prueba Firebase
+        FirebaseApp.initializeApp(getApplicationContext());
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
+        Map<String, String> datos = new HashMap<>();
+        datos.put("nombre", "Juan");
+        datos.put("apellido", "Pérez");
+        databaseReference.child("usuarios").child("123").setValue(datos);
 
         //Copiada de almacenar las imágenes en cache
         // Get max available VM memory, exceeding this amount will throw an
@@ -58,25 +78,75 @@ public class MainActivity extends AppCompatActivity {
 
         adapter = new AdaptadorLibros(listLibros);
         recycler.setAdapter(adapter);
-        adapter.setOnClickListener(view -> {
-            Intent intent = new Intent(this, LibroDetalle.class);
-            //envio el titulo y la sinopsis en el extra del intent
-            intent.putExtra("titulo", listLibros.get(recycler.getChildAdapterPosition(view)).getTitulo());
-            intent.putExtra("sinopsis", listLibros.get(recycler.getChildAdapterPosition(view)).getSinopsis());
-            //Si defino el identificador del cache, no se sobrescribe al almacenar otro Bitmap sobre este, por lo que
-            // ha hecho falta definir una variable id en libro para almacenar en un string único por libro
-            String portada = "portada" + listLibros.get(recycler.getChildAdapterPosition(view)).getId();
-            intent.putExtra("portada", portada);
-            addBitmapToMemoryCache(portada, listLibros.get(recycler.getChildAdapterPosition(view)).getPortada());
 
-            startActivity(intent);
+        // Lo registramos para que soporte menús contextuales
+        registerForContextMenu(recycler);
 
-
-            //adapter.getItemViewType(recycler.getChildAdapterPosition(view));
-        });
+        adapter.setClickListener(this);
+        //Recojo los datos del de los libros del json
         new JsonCall().execute("https://raw.githubusercontent.com/Domivat24/LibreriaAndroid/master/app/src/main/java/dam/curso2022/u2aev1/u6aev1listado/books.json");
 
 
+    }
+
+    @Override
+    public void onItemClick(View view, int position) {
+        Intent intent = new Intent(this, LibroDetalle.class);
+        //envio el titulo y la sinopsis en el extra del intent
+        intent.putExtra("titulo", adapter.getItem(position).getTitulo());
+        intent.putExtra("sinopsis", adapter.getItem(position).getSinopsis());
+
+        //Si defino el identificador del cache, no se sobrescribe al almacenar otro Bitmap sobre este, por lo que
+        // ha hecho falta definir una variable id en libro para almacenar en un string único por libro
+        String portada = "portada" + adapter.getItem(position).getId();
+        intent.putExtra("portada", portada);
+        addBitmapToMemoryCache(portada, adapter.getItem(position).getPortada());
+
+        Toast.makeText(this, "Has hecho clic en " + adapter.getItem(position).getTitulo() + " de la fila " + position, Toast.LENGTH_SHORT).show();
+        startActivity(intent);
+
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        Toast.makeText(getApplicationContext(), "Has hecho clic en Añadir a favoritos " + item.getGroupId(), Toast.LENGTH_LONG).show();
+
+        return super.onContextItemSelected(item);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Control de apertura/cierre del NavigationDrawer
+        /*
+         if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+         */
+
+
+        // Control de opciones de la action bar
+        int id = item.getItemId();
+        if (id == R.id.configuracion_actionbar) {
+            Toast.makeText(getApplicationContext(), "Entrando a configuración", Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(MainActivity.this, ConfiguracionActivity.class);
+            startActivity(intent);
+
+            return true;
+        } else if (id == R.id.acercade_actionbar) {
+            Toast.makeText(getApplicationContext(), "Entrando a Acerca de...", Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(MainActivity.this, AcercaDeActivity.class);
+            startActivity(intent);
+
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        //Inflate the menu; this adds items to the action bar if it is present
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
     }
 
     //añade el bitmap a un cache, similar al intent, lo recoge según el valor key
@@ -107,6 +177,7 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
 
     //clase asyncrona que se encarga de recoger los datos del json y mostrar un progress Dialog
 //mientras estos recursos son cargados, inhabilitando al usuario de hacer cualquier otra cosa durante
