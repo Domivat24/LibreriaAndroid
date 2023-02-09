@@ -9,6 +9,9 @@
     <string name="acercaDeInfo">Esta es una pequeña app que hace de pequeño espositor/librería de las dos sagas más importantes de fantasía del autor Brandon Sanderson.\nAmbas forman parte del macrouniverso conocido como "Cosmere", en el que la mayoría de los libros del escritor tienen lugar. Siendo, por lo general, cada libro/saga basándose en su propio mundo del Cosmere.</string>
     <string name="ctx_anadir_favoritos">Añadir a favoritos</string>
     <string name="ctx_anadir_wishlist">Añadir a lista de deseados</string>
+    <string name="Cosmere">Página web del Cosmere</string>
+    <string name="nav_abrir">Abrir</string>
+    <string name="nav_cerrar">Cerrar</string>
 
     <string-array name="array_idiomas">
         <item>Español</item>

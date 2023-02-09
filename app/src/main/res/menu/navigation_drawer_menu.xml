@@ -4,8 +4,8 @@
     tools:ignore="HardcodedText">
 
     <item
-        android:id="@+id/nav_cuenta"
-        android:title="Mi cuenta" />
+        android:id="@+id/nav_Cosmere"
+        android:title="@string/Cosmere" />
 
     <item
         android:id="@+id/nav_inicio"

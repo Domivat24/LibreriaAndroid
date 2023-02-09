@@ -14,7 +14,10 @@ import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -42,6 +45,8 @@ public class MainActivity extends AppCompatActivity implements AdaptadorLibros.I
     RecyclerView recycler;
     AdaptadorLibros adapter;
     public static LruCache<String, Bitmap> mMemoryCache;
+    public DrawerLayout drawerLayout;
+    public ActionBarDrawerToggle actionBarDrawerToggle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +55,19 @@ public class MainActivity extends AppCompatActivity implements AdaptadorLibros.I
         recycler = findViewById(R.id.recyclerId);
         recycler.setLayoutManager(new GridLayoutManager(this, 2));
         listLibros = new ArrayList<>();
+
+        // Configuramos el NavigationDrawer
+        drawerLayout = findViewById(R.id.my_drawer_layout);
+        actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.nav_abrir, R.string.nav_cerrar);
+        drawerLayout.addDrawerListener(actionBarDrawerToggle);
+        actionBarDrawerToggle.syncState();
+
+        // Mostramos siempre el icono del Navigation Drawer
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        // Añadimos la escucha para el NavigationDrawer
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
 
         //prueba Firebase
         FirebaseApp.initializeApp(getApplicationContext());
@@ -102,28 +120,47 @@ public class MainActivity extends AppCompatActivity implements AdaptadorLibros.I
         intent.putExtra("portada", portada);
         addBitmapToMemoryCache(portada, adapter.getItem(position).getPortada());
 
-        Toast.makeText(this, "Has hecho clic en " + adapter.getItem(position).getTitulo() + " de la fila " + position, Toast.LENGTH_SHORT).show();
         startActivity(intent);
 
     }
 
     @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        Toast.makeText(getApplicationContext(), "Has hecho clic en Añadir a favoritos " + item.getGroupId(), Toast.LENGTH_LONG).show();
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        switch (item.getItemId()) {
 
-        return super.onContextItemSelected(item);
+            case R.id.nav_Cosmere: {
+                // hacer algo
+                Toast.makeText(this, "Has hecho clic en Mi cuenta", Toast.LENGTH_SHORT).show();
+                break;
+            }
+            case R.id.nav_inicio: {
+                // hacer algo
+                Toast.makeText(getApplicationContext(), "Has hecho clic en Inicio", Toast.LENGTH_SHORT).show();
+                break;
+            }
+            case R.id.nav_favoritos: {
+                // hacer algo
+                Toast.makeText(getApplicationContext(), "Has hecho clic en Favoritos", Toast.LENGTH_SHORT).show();
+                break;
+            }
+            case R.id.nav_cerrar_sesion: {
+                // hacer algo
+                Toast.makeText(getApplicationContext(), "Has hecho clic en Cerrar sesión", Toast.LENGTH_SHORT).show();
+                break;
+            }
+        }
+        // Cerramos el NavigationDrawer
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Control de apertura/cierre del NavigationDrawer
-        /*
-         if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
+        if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
-         */
-
-
         // Control de opciones de la action bar
         int id = item.getItemId();
         if (id == R.id.configuracion_actionbar) {
@@ -148,6 +185,7 @@ public class MainActivity extends AppCompatActivity implements AdaptadorLibros.I
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
+
 
     //añade el bitmap a un cache, similar al intent, lo recoge según el valor key
     public void addBitmapToMemoryCache(String key, Bitmap bitmap) {
