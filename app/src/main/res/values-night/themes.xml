@@ -12,5 +12,10 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+        <item name="android:fontFamily">@font/renasci_w90</item>
+        <!-- Font used : .<a href="http://www.onlinewebfonts.com">oNline Web Fonts</a> -->
+        <item name="android:textColor">#88754B</item>
+        <item name="android:backgroundTint">#171719</item>
+
     </style>
 </resources>

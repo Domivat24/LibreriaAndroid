@@ -3,9 +3,13 @@ package dam.curso2022.u2aev1.u6aev1listado;
 import static android.content.ContentValues.TAG;
 import static dam.curso2022.u2aev1.u6aev1listado.MainActivity.getBitmapFromMemCache;
 
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -17,6 +21,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import java.io.IOException;
+import java.util.Locale;
 
 
 import okhttp3.Call;
@@ -44,14 +49,25 @@ public class LibroDetalle extends AppCompatActivity {
         titulo = findViewById(R.id.tvTitulo);
         sinopsis = findViewById(R.id.tvSinopsis);
         portada = findViewById(R.id.portada);
-        //recojo los datos del intent y del cache
-        try {
-            new TranslatorText().Post(getIntent().getStringExtra("titulo"), getIntent().getStringExtra("sinopsis"));
-        } catch (IOException e) {
-            e.printStackTrace();
+        //Recojo el idioma
+        SharedPreferences preferenciasCompartidas = getSharedPreferences("PreferenciasCompartidas", MODE_PRIVATE);
+        String codigoIdioma = preferenciasCompartidas.getString("codigo_idioma", "es");
+        //Y lo traduzco si hiciera falta
+        if (codigoIdioma.equals("en")) {
+            try {
+                new TranslatorText().Post(getIntent().getStringExtra("sinopsis"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            titulo.setText(getIntent().getStringExtra("titulo"));
+            sinopsis.setText(getIntent().getStringExtra("sinopsis"));
         }
 
-        Bitmap bitmap = getBitmapFromMemCache(getIntent().getStringExtra("portada"));
+        //recojo los datos del intent y del cache
+
+
+        Bitmap bitmap = getBitmapFromMemCache(String.valueOf(getIntent().getIntExtra("portada", 0)));
         portada.setImageBitmap(bitmap);
 
         sinopsis.setMovementMethod(new ScrollingMovementMethod());
@@ -73,11 +89,11 @@ public class LibroDetalle extends AppCompatActivity {
         OkHttpClient client = new OkHttpClient();
 
         // This function performs a POST request.
-        public void Post(String cadenaTitulo, String cadenaSinopsis) throws IOException {
+        public void Post(String cadenaSinopsis) throws IOException {
             MediaType mediaType = MediaType.parse("application/json");
             RequestBody body = RequestBody.create(mediaType,
-                    "[{\"Text\": \"" + cadenaTitulo + "\"}," +
-                            "{\"Text\": \"" + cadenaSinopsis + "\"}]");
+                    //si quisiera traducir también el título: "[{\"Text\": \"" + cadenaTitulo + "\"},"+
+                    "[{\"Text\": \"" + cadenaSinopsis + "\"}]");
             Request request = new Request.Builder()
                     .url(url)
                     .post(body)
@@ -100,8 +116,11 @@ public class LibroDetalle extends AppCompatActivity {
                         String res = responseBody.string();
                         Log.d(TAG, "onResponse: " + res);
                         JsonArray translations = (JsonArray) JsonParser.parseString(res);
-                        titulo.setText(translations.get(0).getAsJsonObject().get("translations").getAsJsonArray().get(0).getAsJsonObject().get("text").getAsString());
-                        sinopsis.setText(translations.get(1).getAsJsonObject().get("translations").getAsJsonArray().get(0).getAsJsonObject().get("text").getAsString());
+                        sinopsis.setText(translations.get(0).getAsJsonObject().get("translations").getAsJsonArray().get(0).getAsJsonObject().get("text").getAsString());
+                        //si quisiera traducir más valores, como el título:
+                        //titulo.setText(translations.get(1).getAsJsonObject().get("translations").getAsJsonArray().get(0).getAsJsonObject().get("text").getAsString());
+                        //en cambio, lo defino según el id pasado por el extra y el valor de resources
+                        titulo.setText((getResources().getStringArray(R.array.title_Books_en)[getIntent().getIntExtra("portada", 0)]));
                     }
                 }
             });

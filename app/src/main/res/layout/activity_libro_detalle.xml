@@ -21,16 +21,17 @@
 
     <TextView
         android:id="@+id/tvSinopsis"
-        android:layout_width="349dp"
-        android:layout_height="277dp"
+        android:layout_width="352dp"
+        android:layout_height="282dp"
         android:gravity="center"
         android:textAlignment="textStart"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.728"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/portada"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.567" />
 
     <ImageView
         android:id="@+id/portada"

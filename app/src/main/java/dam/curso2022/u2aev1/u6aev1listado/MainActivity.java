@@ -1,11 +1,16 @@
 package dam.curso2022.u2aev1.u6aev1listado;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.LruCache;
 import android.view.Menu;
@@ -13,8 +18,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import dam.curso2022.u2aev1.u6aev1listado.ConfiguracionActivity;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -37,6 +45,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements AdaptadorLibros.ItemClickListener, NavigationView.OnNavigationItemSelectedListener {
@@ -47,10 +56,23 @@ public class MainActivity extends AppCompatActivity implements AdaptadorLibros.I
     public static LruCache<String, Bitmap> mMemoryCache;
     public DrawerLayout drawerLayout;
     public ActionBarDrawerToggle actionBarDrawerToggle;
+    SharedPreferences preferenciasCompartidas;
+    String codigoIdioma;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Configuración de idioma
+        preferenciasCompartidas = getSharedPreferences("PreferenciasCompartidas", MODE_PRIVATE);
+        codigoIdioma = preferenciasCompartidas.getString("codigo_idioma", "es");
+        //importo el setAppLocale de la activity configuracion
+        setAppLocale(codigoIdioma);
+
+        //recojo de firebase los libros favoritos y deseados
+
+
+
+
         setContentView(R.layout.activity_main);
         recycler = findViewById(R.id.recyclerId);
         recycler.setLayoutManager(new GridLayoutManager(this, 2));
@@ -73,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements AdaptadorLibros.I
         FirebaseApp.initializeApp(getApplicationContext());
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
         Map<String, String> datos = new HashMap<>();
-        datos.put("nombre", "Juan");
+        datos.put("idioma", "Juan");
         datos.put("apellido", "Pérez");
         databaseReference.child("usuarios").child("123").setValue(datos);
 
@@ -102,9 +124,7 @@ public class MainActivity extends AppCompatActivity implements AdaptadorLibros.I
 
         adapter.setClickListener(this);
         //Recojo los datos del de los libros del json
-        new JsonCall().execute("https://raw.githubusercontent.com/Domivat24/LibreriaAndroid/master/app/src/main/java/dam/curso2022/u2aev1/u6aev1listado/books.json");
-
-
+        new JsonCall().execute("https://raw.githubusercontent.com/Domivat24/LibreriaAndroid/master/app/src/main/res/values/books.json");
     }
 
     @Override
@@ -115,10 +135,10 @@ public class MainActivity extends AppCompatActivity implements AdaptadorLibros.I
         intent.putExtra("sinopsis", adapter.getItem(position).getSinopsis());
 
         //Si defino el identificador del cache, no se sobrescribe al almacenar otro Bitmap sobre este, por lo que
-        // ha hecho falta definir una variable id en libro para almacenar en un string único por libro
-        String portada = "portada" + adapter.getItem(position).getId();
+        // ha hecho falta definir una variable id en libro para almacenar en un string único cada libro almacenado en caché
+        int portada = adapter.getItem(position).getId();
         intent.putExtra("portada", portada);
-        addBitmapToMemoryCache(portada, adapter.getItem(position).getPortada());
+        addBitmapToMemoryCache(String.valueOf(portada), adapter.getItem(position).getPortada());
 
         startActivity(intent);
 
@@ -131,28 +151,41 @@ public class MainActivity extends AppCompatActivity implements AdaptadorLibros.I
 
             case R.id.nav_Cosmere: {
                 // hacer algo
-                Toast.makeText(this, "Has hecho clic en Mi cuenta", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getText(R.string.toast_Guia), Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(MainActivity.this, GuiaLectura.class));
                 break;
             }
             case R.id.nav_inicio: {
                 // hacer algo
-                Toast.makeText(getApplicationContext(), "Has hecho clic en Inicio", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), getText(R.string.toast_Inicio), Toast.LENGTH_SHORT).show();
                 break;
             }
             case R.id.nav_favoritos: {
                 // hacer algo
-                Toast.makeText(getApplicationContext(), "Has hecho clic en Favoritos", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), getText(R.string.toast_Favoritos_View), Toast.LENGTH_SHORT).show();
+                break;
+            }
+            case R.id.nav_wishlist: {
+                // hacer algo
+                Toast.makeText(getApplicationContext(), getText(R.string.toast_Wishlist_View), Toast.LENGTH_SHORT).show();
                 break;
             }
             case R.id.nav_cerrar_sesion: {
                 // hacer algo
-                Toast.makeText(getApplicationContext(), "Has hecho clic en Cerrar sesión", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), getText(R.string.toast_CerrarSesion), Toast.LENGTH_SHORT).show();
                 break;
             }
         }
         // Cerramos el NavigationDrawer
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        //guardar en Firebase
+
     }
 
     @Override
@@ -164,13 +197,13 @@ public class MainActivity extends AppCompatActivity implements AdaptadorLibros.I
         // Control de opciones de la action bar
         int id = item.getItemId();
         if (id == R.id.configuracion_actionbar) {
-            Toast.makeText(getApplicationContext(), "Entrando a configuración", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), getText(R.string.toast_Config), Toast.LENGTH_LONG).show();
             Intent intent = new Intent(MainActivity.this, ConfiguracionActivity.class);
             startActivity(intent);
 
             return true;
         } else if (id == R.id.acercade_actionbar) {
-            Toast.makeText(getApplicationContext(), "Entrando a Acerca de...", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), getText(R.string.toast_AcercaDe), Toast.LENGTH_LONG).show();
             Intent intent = new Intent(MainActivity.this, AcercaDeActivity.class);
             startActivity(intent);
 
@@ -184,6 +217,21 @@ public class MainActivity extends AppCompatActivity implements AdaptadorLibros.I
         //Inflate the menu; this adds items to the action bar if it is present
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
+    }
+
+    public boolean onContextItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch (id) {
+            case 0:
+
+                break;
+            case 1:
+                break;
+        }
+
+        Toast.makeText(getApplicationContext(), getText(R.string.toast_Favorito).toString() + item.getGroupId(), Toast.LENGTH_SHORT).show();
+
+        return super.onContextItemSelected(item);
     }
 
 
@@ -205,11 +253,23 @@ public class MainActivity extends AppCompatActivity implements AdaptadorLibros.I
         try {
             JSONArray json = new JSONArray(jsonstream);
 
-            for (int i = 0; i < json.length(); i++) {
-                decodedBytes = Base64.getDecoder().decode(json.getJSONObject(i).getString("imagen"));
-                Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
-                listLibros.add(new Libro(json.getJSONObject(i).getString("titulo"), json.getJSONObject(i).getString("sinopsis"), bitmap));
+            //Si la interfaz debe estar en inglés, meto los tíutulos hardcodeados del string.xml, pues de base, estos
+            // no se traducían bien con la traducción automática (esperable). Además,  meter el translator en el adapter me parecía
+            // que iba a ser demasiada carga a la api y demasiado engorroso de hacer para lo que iba a aportar
+            if (codigoIdioma.equals("en")) {
+                for (int i = 0; i < json.length(); i++) {
+                    decodedBytes = Base64.getDecoder().decode(json.getJSONObject(i).getString("imagen"));
+                    Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                    listLibros.add(new Libro(getResources().getStringArray(R.array.title_Books_en)[i], json.getJSONObject(i).getString("sinopsis"), bitmap));
+                }
+            } else {
+                for (int i = 0; i < json.length(); i++) {
+                    decodedBytes = Base64.getDecoder().decode(json.getJSONObject(i).getString("imagen"));
+                    Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                    listLibros.add(new Libro(json.getJSONObject(i).getString("titulo"), json.getJSONObject(i).getString("sinopsis"), bitmap));
+                }
             }
+
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -224,7 +284,7 @@ public class MainActivity extends AppCompatActivity implements AdaptadorLibros.I
         protected void onPreExecute() {
             super.onPreExecute();
             pd = new ProgressDialog(MainActivity.this);
-            pd.setMessage("Cargando recursos");
+            pd.setMessage(getText(R.string.loadingData));
             pd.setCancelable(false);
             pd.show();
         }
@@ -278,5 +338,44 @@ public class MainActivity extends AppCompatActivity implements AdaptadorLibros.I
             // y notificamos al adapter de que han habido cambios
             adapter.notifyDataSetChanged();
         }
+    }
+
+    // Manejo al intentar salir de la app
+    public void onBackPressed() {
+        // Crear el objeto constructor de alerta AlertDialog.Builder
+        AlertDialog.Builder constructorAlerta = new AlertDialog.Builder(MainActivity.this);
+
+        // Establecer título y mensaje
+        constructorAlerta.
+                setTitle(getText(R.string.txt_salir_app_titulo)).
+                setMessage(getText(R.string.txt_salir_app_mensaje));
+
+        // Hacer que no se pueda dejar el diálogo sin pulsar una opción
+        constructorAlerta.setCancelable(false);
+
+        // Establecer botón de respuesta positiva
+        constructorAlerta.setPositiveButton(getText(R.string.txt_si), (dialog, which) -> {
+            finish();
+        });
+
+        // Establecer botón de respuesta negativa
+        constructorAlerta.setNegativeButton(getText(R.string.txt_no), (dialog, which) -> {
+            dialog.cancel();
+        });
+
+        // Crear y mostrar diálogo de alerta
+        AlertDialog dialogoAlertaSalir = constructorAlerta.create();
+        dialogoAlertaSalir.show();
+    }
+
+    private void setAppLocale(String localeCode) {
+        Locale myLocale = new Locale(localeCode);
+        Resources res = getResources();
+        DisplayMetrics dm = res.getDisplayMetrics();
+        Configuration conf = res.getConfiguration();
+        conf.locale = myLocale;
+        Locale.setDefault(myLocale);
+        conf.setLayoutDirection(myLocale);
+        res.updateConfiguration(conf, dm);
     }
 }

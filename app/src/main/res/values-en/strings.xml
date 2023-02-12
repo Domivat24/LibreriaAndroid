@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">U6AEV1Listado</string>
+    <string name="configuracion_actionbar">Settings</string>
+    <string name="acercade_actionbar">About...</string>
+    <string name="switchNotis">Notifications</string>
+    <string name="configMenu">Settings</string>
+    <string name="ctx_anadir_favoritos">Add to favorites</string>
+    <string name="ctx_anadir_wishlist">Add to wishlist</string>
+    <string name="menu_GuiaLectura">Cosmere\'s reading guide</string>
+    <string name="nav_abrir">Open</string>
+    <string name="nav_cerrar">Close</string>
+    <string name="pag_web_cosmere">https://www.brandonsanderson.com/what-is-the-cosmere</string>
+    <string name="title">Brandon Sanderson\'s books</string>
+    <string name="toast_Config">Going to settings</string>
+    <string name="toast_AcercaDe">Going to About...</string>
+    <string name="toast_Guia">Going to reading guide</string>
+    <string name="toast_Favorito">Book added to favorites</string>
+    <string name="toast_Quitar_Favorito">Book removed from favorites</string>
+    <string name="toast_Wishlist">Book added to wishlist</string>
+    <string name="toast_Quitar_Wishlist">Book removed from wishlist</string>
+    <string name="pag_web_readGuide">https://17thshard.github.io/reading-order/#/?order=order&amp;connections.major=true&amp;connections.significant=true</string>
+    <string name="aviso_cambio_idioma_mensaje">Changing the language will be completely effective after restarting the app</string>
+    <string name="aviso_cambio_idioma_aceptar">OK</string>
+    <string name="menu_Inicio">Home</string>
+    <string name="menu_Favoritos">Favorites</string>
+    <string name="menu_Wishlist">Wishlist</string>
+    <string name="menu_CerrarSesion">Sign out</string>
+    <string name="toast_Inicio">Going to Home Screen</string>
+    <string name="toast_CerrarSesion">Signing out...</string>
+    <string name="toast_Wishlist_View">Going to wishlist</string>
+    <string name="toast_Favoritos_View">Going to favorites</string>
+    <string name="guia_detallada">"*: This guide/chart is customizable. Follow <a href="https://17thshard.github.io/reading-order/#/">this link</a> to tweak with it as you please"</string>
+    <string name="txt_si">Yes</string>
+    <string name="txt_no">No</string>
+    <string name="txt_salir_app_mensaje">Are you sure you want to close the app?</string>
+    <string name="txt_salir_app_titulo">Closing app</string>
+    <string name="loadingData">Loading resources</string>
+
+</resources>

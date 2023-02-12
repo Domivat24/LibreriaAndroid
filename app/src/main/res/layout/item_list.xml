@@ -7,7 +7,8 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingBottom="15sp">
 
         <ImageView
             android:id="@+id/idPortada"
@@ -19,9 +20,13 @@
         <TextView
             android:id="@+id/idLibro"
             android:layout_width="match_parent"
-            android:layout_height="102dp"
+            android:layout_height="80dp"
+            android:autoSizeMaxTextSize="20sp"
+            android:autoSizeMinTextSize="10sp"
+            android:autoSizeTextType="uniform"
             android:gravity="center"
-            android:text="Mistbron 3 : El heroe de las eras"
+            android:text="El archivo de las tormentas 1: El Ritmo de la guerra"
+
             android:textSize="20sp"
             android:textStyle="bold" />
     </LinearLayout>

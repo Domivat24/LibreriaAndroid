@@ -6,15 +6,17 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.text.method.LinkMovementMethod;
 import android.util.DisplayMetrics;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
+import android.widget.TextView;
+
+import com.ortiz.touchview.TouchImageView;
 
 import java.util.Locale;
 
-public class AcercaDeActivity extends AppCompatActivity {
-    WebView cosmere;
+public class GuiaLectura extends AppCompatActivity {
+    TouchImageView tvGuia;
+    TextView tvLink;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,13 +26,17 @@ public class AcercaDeActivity extends AppCompatActivity {
         String codigoIdioma = preferenciasCompartidas.getString("codigo_idioma", "es");
         setAppLocale(codigoIdioma);
 
-
-        setContentView(R.layout.activity_acerca_de);
-        cosmere = findViewById(R.id.web_Cosmere);
-        final WebSettings settings = cosmere.getSettings();
-        settings.setJavaScriptEnabled(true);
-        cosmere.setWebViewClient(new WebViewClient());
-        cosmere.loadUrl((String) getText(R.string.pag_web_cosmere));
+        setContentView(R.layout.activity_guia_lectura);
+        tvGuia = findViewById(R.id.tv_Guia);
+        //defino la guía en función del idioma
+        if (codigoIdioma.equals("en")) {
+            tvGuia.setImageResource(R.drawable.guia_en);
+        } else {
+            tvGuia.setImageResource(R.drawable.guia_es);
+        }
+        tvLink = findViewById(R.id.tvLink);
+        //hacemos que el enlace del TextView se lance en el navegador
+        tvLink.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
     private void setAppLocale(String localeCode) {

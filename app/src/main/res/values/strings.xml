@@ -1,20 +1,60 @@
 <resources>
     <string name="app_name">U6AEV1Listado</string>
     <string name="title">Novelas de Brandon Sanderson</string>
-    <string name="aplicacion">Cosmere</string>
+    <string name="aplicacion" translatable="false">Cosmere</string>
     <string name="configuracion_actionbar">Configuración</string>
     <string name="acercade_actionbar">Acerca de...</string>
     <string name="switchNotis">Notificaciones</string>
     <string name="configMenu">Configuración</string>
-    <string name="acercaDeInfo">Esta es una pequeña app que hace de pequeño espositor/librería de las dos sagas más importantes de fantasía del autor Brandon Sanderson.\nAmbas forman parte del macrouniverso conocido como "Cosmere", en el que la mayoría de los libros del escritor tienen lugar. Siendo, por lo general, cada libro/saga basándose en su propio mundo del Cosmere.</string>
     <string name="ctx_anadir_favoritos">Añadir a favoritos</string>
     <string name="ctx_anadir_wishlist">Añadir a lista de deseados</string>
-    <string name="Cosmere">Página web del Cosmere</string>
+    <string name="menu_GuiaLectura">Guía de lectura del Cosmere</string>
     <string name="nav_abrir">Abrir</string>
+    <string name="toast_Config">Entrando a configuración</string>
+    <string name="toast_AcercaDe">Entrando a Acerca de...</string>
     <string name="nav_cerrar">Cerrar</string>
+    <string name="pag_web_cosmere">https://cosmere.es/que-es-el-cosmere</string>
+    <string name="guia_detallada">*: Más información en: <a href="https://cosmere.es/orden-de-lectura-del-cosmere/">Cosmere.es</a></string>
+
 
     <string-array name="array_idiomas">
         <item>Español</item>
         <item>English</item>
+    </string-array>
+
+    <string name="toast_Guia">Entrando a guía de lectura</string>
+    <string name="toast_Favorito">Añadido el libro a favoritos</string>
+    <string name="toast_Quitar_Favorito">Eliminado el libro de favoritos</string>
+    <string name="toast_Wishlist">Añadido el libro a la lista de deseados</string>
+    <string name="toast_Quitar_Wishlist">Eliminado el libro de la lista de deseados</string>
+    <string name="pag_web_readGuide">https://cosmere.es/orden-de-lectura-del-cosmere/</string>
+    <string name="aviso_cambio_idioma_mensaje">El cambio de idioma tendrá efecto completo en el siguiente reinicio de la app</string>
+    <string name="aviso_cambio_idioma_aceptar">De acuerdo</string>
+    <string name="menu_Inicio">Inicio</string>
+    <string name="menu_Favoritos">Favoritos</string>
+    <string name="menu_Wishlist">Lista de deseados</string>
+    <string name="menu_CerrarSesion">Cerrar sesión</string>
+    <string name="toast_Inicio">Entrando a la pantalla de inicio</string>
+    <string name="toast_Favoritos_View">Entrando a favoritos</string>
+    <string name="toast_Wishlist_View">Entrando a la lista de deseados</string>
+    <string name="toast_CerrarSesion">Cerrando sesión...</string>
+    <string name="txt_salir_app_titulo">Cerrar aplicación</string>
+    <string name="txt_salir_app_mensaje">¿Estás seguro/a de querer cerrar la aplicación?</string>
+    <string name="txt_si">Sí</string>
+    <string name="txt_no">No</string>
+    <string name="loadingData">Cargando recursos</string>
+    <string-array name="title_Books_en">
+        <item>Mistborn 1: The Final Empire</item>
+        <item>Mistborn 2: The Well of Ascension</item>
+        <item>Mistborn 3: The Hero of Ages</item>
+        <item>Mistborn: Secret History</item>
+        <item>Mistborn 4: The Alloy of Law</item>
+        <item>Mistborn 5: Shadows of Self</item>
+        <item>Mistborn 6: The Bands of Mourning</item>
+        <item>Mistborn 7: The Lost Metal</item>
+        <item>The Stormlight Archive 1: The Way of Kings</item>
+        <item>The Stormlight Archive 2: Words of Radiance</item>
+        <item>The Stormlight Archive 3: Oathbringer</item>
+        <item>The Stormlight Archive 4: Rhythm of War</item>
     </string-array>
 </resources>

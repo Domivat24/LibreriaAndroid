@@ -19,17 +19,13 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.054" />
 
-    <TextView
-        android:id="@+id/tvInfo"
-        android:layout_width="340dp"
-        android:layout_height="416dp"
-        android:gravity="center"
-        android:text="@string/acercaDeInfo"
-        android:textSize="20sp"
+    <WebView
+        android:id="@+id/web_Cosmere"
+        android:layout_width="385dp"
+        android:layout_height="583dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.492"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.485" />
+        app:layout_constraintVertical_bias="0.756" />
 </androidx.constraintlayout.widget.ConstraintLayout>
