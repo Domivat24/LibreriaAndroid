@@ -124,7 +124,7 @@ public class MainActivity extends AppCompatActivity implements AdaptadorLibros.I
 
         adapter.setClickListener(this);
         //Recojo los datos del de los libros del json
-        new JsonCall().execute("https://raw.githubusercontent.com/Domivat24/LibreriaAndroid/master/app/src/main/res/values/books.json");
+        new JsonCall().execute("https://raw.githubusercontent.com/Domivat24/LibreriaAndroid/master/app/src/main/res/values/books/books.json");
     }
 
     @Override
