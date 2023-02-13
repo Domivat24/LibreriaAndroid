@@ -36,5 +36,7 @@
     <string name="txt_salir_app_mensaje">Are you sure you want to close the app?</string>
     <string name="txt_salir_app_titulo">Closing app</string>
     <string name="loadingData">Loading resources</string>
+    <string name="ctx_Quitar_Favoritos">Remove from favorites</string>
+    <string name="ctx_Quitar_Wishlist">Remove from wishlist</string>
 
 </resources>

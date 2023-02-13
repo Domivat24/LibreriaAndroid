@@ -57,4 +57,6 @@
         <item>The Stormlight Archive 3: Oathbringer</item>
         <item>The Stormlight Archive 4: Rhythm of War</item>
     </string-array>
+    <string name="ctx_Quitar_Favoritos">Eliminar de favoritos</string>
+    <string name="ctx_Quitar_Wishlist">Eliminar de lista de deseados</string>
 </resources>

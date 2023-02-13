@@ -2,6 +2,7 @@ package dam.curso2022.u2aev1.u6aev1listado;
 
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -14,7 +15,9 @@ import java.util.ArrayList;
 
 public class AdaptadorLibros extends RecyclerView.Adapter<AdaptadorLibros.ViewHolderLibros> {
     ArrayList<Libro> listLibros;
-    private ItemClickListener mClickListener;
+    private OnItemClickListener onItemClickListener;
+    private OnCreateContextMenu onCreateContextMenu;
+    private OnContextMenuItemClickListener onContextMenuItemClickListener;
 
 
     public AdaptadorLibros(ArrayList<Libro> listLibros) {
@@ -60,29 +63,69 @@ public class AdaptadorLibros extends RecyclerView.Adapter<AdaptadorLibros.ViewHo
 
         @Override
         public void onClick(View view) {
-            if (mClickListener != null) mClickListener.onItemClick(view, getAdapterPosition());
+            if (onItemClickListener != null)
+                onItemClickListener.onItemClick(view, getAdapterPosition());
         }
 
 
         @Override
         public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-            menu.add(this.getAdapterPosition(), v.getId(), 0, R.string.ctx_anadir_favoritos);//groupId, itemId, order, title
-            menu.add(this.getAdapterPosition(), v.getId(), 0, R.string.ctx_anadir_wishlist);//groupId, itemId, order, title
-
+            if (onCreateContextMenu != null) {
+                onCreateContextMenu.onCreateContextMenu(menu, v, menuInfo, getAdapterPosition(), onMenuItemClickListener);
+            }
         }
+
+        //context menu item click listener
+        private MenuItem.OnMenuItemClickListener onMenuItemClickListener = new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+
+                if (onContextMenuItemClickListener != null) {
+                    onContextMenuItemClickListener.onContextMenuItemClick(item, getAdapterPosition());
+                }
+                return true;
+            }
+        };
     }
+
     //get Libro to esasily manage it
     Libro getItem(int id) {
         return listLibros.get(id);
     }
 
     // allows clicks events to be caught
-    void setClickListener(ItemClickListener itemClickListener) {
-        this.mClickListener = itemClickListener;
+
+/*
+     ===========================><============================
+     * Custom interface for handle event from other class file
+     ===========================><============================
+     */
+
+    //Interface for onItemClickListener;
+    //Interface for onItemClickListener;
+    interface OnItemClickListener {
+        void onItemClick(View view, int position);
     }
 
-    // parent activity will implement this method to respond to click events
-    public interface ItemClickListener {
-        void onItemClick(View view, int position);
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+        this.onItemClickListener = onItemClickListener;
+    }
+
+    //Interface for onCreateContextMenu
+    interface OnCreateContextMenu {
+        void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo menuInfo, int position, MenuItem.OnMenuItemClickListener menuItemClickListener);
+    }
+
+    public void setOnCreateContextMenu(OnCreateContextMenu onCreateContextMenu) {
+        this.onCreateContextMenu = onCreateContextMenu;
+    }
+
+    //Interface for onContextMenuItemClickListener
+    interface OnContextMenuItemClickListener {
+        void onContextMenuItemClick(MenuItem menuItem, int position);
+    }
+
+    public void setOnContextMenuItemClickListener(OnContextMenuItemClickListener onContextMenuItemClickListener) {
+        this.onContextMenuItemClickListener = onContextMenuItemClickListener;
     }
 }

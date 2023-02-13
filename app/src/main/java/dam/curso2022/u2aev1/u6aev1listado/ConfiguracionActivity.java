@@ -10,11 +10,23 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Switch;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 public class ConfiguracionActivity extends AppCompatActivity {
     private Spinner spIdiomas;
@@ -104,6 +116,30 @@ public class ConfiguracionActivity extends AppCompatActivity {
 
         // Una vez hechos los cambios, guardamos los datos
         editorPreferencias.apply();
+
+        //implementar valores en Firebase
+        FirebaseApp.initializeApp(getApplicationContext());
+        FirebaseDatabase db = FirebaseDatabase.getInstance();
+        DatabaseReference refUsuario = db.getReference("usuarios");
+        String keyFirebase = preferencias.getString("keyFirebase", "");
+        refUsuario.orderByKey().equalTo(keyFirebase).addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()) {
+                            Map<String, Object> datos = new HashMap<>();
+                            datos.put("notificaciones", swNotificaciones.isChecked());
+                            datos.put("idioma", preferencias.getString("codigo_idioma", "es"));
+                            refUsuario.child(keyFirebase).updateChildren(datos);
+                            Toast.makeText(getApplicationContext(), getText(R.string.toast_Favorito).toString(), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
     }
 
     private void setAppLocale(String localeCode) {

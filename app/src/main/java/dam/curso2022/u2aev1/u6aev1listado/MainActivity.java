@@ -1,7 +1,6 @@
 package dam.curso2022.u2aev1.u6aev1listado;
 
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -15,10 +14,7 @@ import android.util.Log;
 import android.util.LruCache;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
-
-import dam.curso2022.u2aev1.u6aev1listado.ConfiguracionActivity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -31,8 +27,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONArray;
 
@@ -44,11 +43,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-public class MainActivity extends AppCompatActivity implements AdaptadorLibros.ItemClickListener, NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     ProgressDialog pd;
     ArrayList<Libro> listLibros;
     RecyclerView recycler;
@@ -57,7 +57,11 @@ public class MainActivity extends AppCompatActivity implements AdaptadorLibros.I
     public DrawerLayout drawerLayout;
     public ActionBarDrawerToggle actionBarDrawerToggle;
     SharedPreferences preferenciasCompartidas;
-    String codigoIdioma;
+    String codigoIdioma, keyFirebase;
+    FirebaseDatabase db;
+    ArrayList<String> favoritos = new ArrayList<String>();
+    ArrayList<String> wishlist = new ArrayList<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,12 +69,14 @@ public class MainActivity extends AppCompatActivity implements AdaptadorLibros.I
         // Configuración de idioma
         preferenciasCompartidas = getSharedPreferences("PreferenciasCompartidas", MODE_PRIVATE);
         codigoIdioma = preferenciasCompartidas.getString("codigo_idioma", "es");
-        //importo el setAppLocale de la activity configuracion
+        keyFirebase = preferenciasCompartidas.getString("keyFirebase", "");
         setAppLocale(codigoIdioma);
 
+        //Iniciamos firebase
+        FirebaseApp.initializeApp(getApplicationContext());
+        db = FirebaseDatabase.getInstance();
+
         //recojo de firebase los libros favoritos y deseados
-
-
 
 
         setContentView(R.layout.activity_main);
@@ -91,13 +97,66 @@ public class MainActivity extends AppCompatActivity implements AdaptadorLibros.I
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        //prueba Firebase
-        FirebaseApp.initializeApp(getApplicationContext());
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
-        Map<String, String> datos = new HashMap<>();
-        datos.put("idioma", "Juan");
-        datos.put("apellido", "Pérez");
-        databaseReference.child("usuarios").child("123").setValue(datos);
+
+        //Manejo de firebase, si en las preferencias locales no se ha definido el id del usuario generado por firebase, lo generamos
+        if (keyFirebase.equals("")) {
+            FirebaseApp.initializeApp(getApplicationContext());
+            DatabaseReference databaseReference = db.getReference();
+            Map<String, String> datos = new HashMap<>();
+            Map<String, String> favoritos = new HashMap<>();
+
+            SharedPreferences.Editor editorPreferencias = preferenciasCompartidas.edit();
+            //Guardo el identificador en una variable, pues cada instancia de push parece generar una clave diferente
+            String key = databaseReference.push().getKey();
+            editorPreferencias.putString("keyFirebase", key);
+
+            editorPreferencias.commit();
+
+            //defino de nuevo la variable id con la llave recién generada, pues sinó los cambios no tendrían efecto hasta destruir la activity
+            keyFirebase = preferenciasCompartidas.getString("keyFirebase", "");
+            datos.put("idioma", "es");
+            datos.put("notificaciones", "false");
+
+
+            databaseReference.child("usuarios").child(key).setValue(datos);
+        } else {
+            DatabaseReference refUsuario = db.getReference("usuarios");
+            refUsuario.orderByKey().equalTo(keyFirebase).addListenerForSingleValueEvent(
+                    new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            if (snapshot.exists()) {
+                                //Si se encuentran valores, se añaden a la lista local, ya que sino se definirá el arraylist como nulo y dará problemas
+                                // de ejecución al llamarlo
+                                HashMap<String, String> favoritosDB;
+                                //try y catch teoricamente innecesario, pero los dejo por si acaso porque la consulta me ha devuelto tanto una lista como Map,
+                                // y aunque no haga nada pues al poner una condición deberíoa devolver siempre map, me parece útil tenerlo en cuenta:
+                                //https://stackoverflow.com/a/66738126
+                                try {
+                                    favoritosDB = ((HashMap<String, String>) snapshot.child(keyFirebase).child("favoritos").getValue());
+                                    if (favoritosDB != null) {
+                                        favoritos = new ArrayList<>(favoritosDB.values());
+                                    }
+                                } catch (ClassCastException e) {
+                                    favoritos = (ArrayList<String>) snapshot.child(keyFirebase).child("favoritos").getValue();
+                                }
+                                try {
+                                    HashMap<String, String> wishlistDB = ((HashMap<String, String>) snapshot.child(keyFirebase).child("wishlist").getValue());
+                                    if (wishlistDB != null) {
+                                        wishlist = new ArrayList<>(wishlistDB.values());
+                                    }
+                                } catch (ClassCastException e) {
+                                    wishlist = (ArrayList<String>) snapshot.child(keyFirebase).child("wishlist").getValue();
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+        }
 
         //Copiada de almacenar las imágenes en cache
         // Get max available VM memory, exceeding this amount will throw an
@@ -119,29 +178,133 @@ public class MainActivity extends AppCompatActivity implements AdaptadorLibros.I
         adapter = new AdaptadorLibros(listLibros);
         recycler.setAdapter(adapter);
 
-        // Lo registramos para que soporte menús contextuales
-        registerForContextMenu(recycler);
 
-        adapter.setClickListener(this);
         //Recojo los datos del de los libros del json
         new JsonCall().execute("https://raw.githubusercontent.com/Domivat24/LibreriaAndroid/master/app/src/main/res/values/books/books.json");
-    }
 
-    @Override
-    public void onItemClick(View view, int position) {
-        Intent intent = new Intent(this, LibroDetalle.class);
-        //envio el titulo y la sinopsis en el extra del intent
-        intent.putExtra("titulo", adapter.getItem(position).getTitulo());
-        intent.putExtra("sinopsis", adapter.getItem(position).getSinopsis());
+        //item click listener
+        adapter.setOnItemClickListener((view, position) -> {
+            Intent intent = new Intent(getApplicationContext(), LibroDetalle.class);
+            //envio el titulo y la sinopsis en el extra del intent
+            intent.putExtra("titulo", adapter.getItem(position).getTitulo());
+            intent.putExtra("sinopsis", adapter.getItem(position).getSinopsis());
 
-        //Si defino el identificador del cache, no se sobrescribe al almacenar otro Bitmap sobre este, por lo que
-        // ha hecho falta definir una variable id en libro para almacenar en un string único cada libro almacenado en caché
-        int portada = adapter.getItem(position).getId();
-        intent.putExtra("portada", portada);
-        addBitmapToMemoryCache(String.valueOf(portada), adapter.getItem(position).getPortada());
+            //Si defino el identificador del cache, no se sobrescribe al almacenar otro Bitmap sobre este, por lo que
+            // ha hecho falta definir una variable id en libro para almacenar en un string único cada libro almacenado en caché
+            int portada = adapter.getItem(position).getId();
+            intent.putExtra("portada", portada);
+            addBitmapToMemoryCache(String.valueOf(portada), adapter.getItem(position).getPortada());
 
-        startActivity(intent);
+            startActivity(intent);
 
+        });
+
+        //Creación del menú contextual, definirá un menú u otro en función de si el usuario tiene los libros en favoritos/deseados
+        adapter.setOnCreateContextMenu((menu, view, menuInfo, position, menuItemClickListener) -> {
+            //Compruebo si el libro está en la lista de favoritos
+            //He de sepearar en dos ifs pues si hago el contains sin comprobar que es nulo, salta error
+
+            if (favoritos.contains(String.valueOf(position))) {
+                menu.add((int) position, 123, 0, R.string.ctx_Quitar_Favoritos).setOnMenuItemClickListener(menuItemClickListener);//groupId, itemId, order, title
+            } else {
+                menu.add(position, 121, 0, R.string.ctx_anadir_favoritos).setOnMenuItemClickListener(menuItemClickListener);//groupId, itemId, order, title
+            }
+
+            //Compruebo si el libro está en la lista de deseados
+
+            if (wishlist.contains(String.valueOf(position))) {
+                menu.add(position, 124, 0, R.string.ctx_Quitar_Wishlist).setOnMenuItemClickListener(menuItemClickListener);//groupId, itemId, order, title
+            } else {
+                menu.add(position, 122, 0, R.string.ctx_anadir_wishlist).setOnMenuItemClickListener(menuItemClickListener);//groupId, itemId, order, title
+            }
+        });
+
+        adapter.setOnContextMenuItemClickListener((menuItem, position) -> {
+            int id = menuItem.getItemId();
+            //position == menuItem.getGroupId(), ya que es la posicion del getAdapterPosition
+            switch (id) {
+                //añadir a favoritos
+                case 121:
+                    DatabaseReference refUsuario = db.getReference("usuarios");
+                    refUsuario.orderByKey().equalTo(keyFirebase).addListenerForSingleValueEvent(
+                            new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                    if (snapshot.exists()) {
+                                        Map<String, Object> favorito = new HashMap<>();
+                                        favorito.put(String.valueOf(position), String.valueOf(position));
+                                        refUsuario.child(keyFirebase).child("favoritos").updateChildren(favorito);
+                                        favoritos.add(String.valueOf(position));
+                                        Toast.makeText(getApplicationContext(), getText(R.string.toast_Favorito).toString(), Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+                                }
+                            });
+                    break;
+                //añadir a wishlist
+                case 122:
+                    refUsuario = db.getReference("usuarios");
+                    refUsuario.orderByKey().equalTo(keyFirebase).addListenerForSingleValueEvent(
+                            new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                    if (snapshot.exists()) {
+                                        Map<String, Object> deseado = new HashMap<>();
+                                        deseado.put(String.valueOf(position), String.valueOf(position));
+                                        refUsuario.child(keyFirebase).child("wishlist").updateChildren(deseado);
+                                        wishlist.add(String.valueOf(position));
+                                        Toast.makeText(getApplicationContext(), getText(R.string.toast_Wishlist).toString(), Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+                                }
+                            });
+                    break;
+                //quitar de favoritos
+                case 123:
+                    refUsuario = db.getReference("usuarios");
+                    refUsuario.orderByKey().equalTo(keyFirebase).addListenerForSingleValueEvent(
+                            new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                    if (snapshot.exists()) {
+                                        refUsuario.child(keyFirebase).child("favoritos").child(String.valueOf(position)).removeValue();
+                                        favoritos.remove(String.valueOf(position));
+                                        Toast.makeText(getApplicationContext(), getText(R.string.toast_Quitar_Favorito).toString(), Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+                                }
+                            });
+                    break;
+                //quitar de wishlist
+                case 124:
+                    refUsuario = db.getReference("usuarios");
+                    refUsuario.orderByKey().equalTo(keyFirebase).addListenerForSingleValueEvent(
+                            new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                    if (snapshot.exists()) {
+                                        refUsuario.child(keyFirebase).child("wishlist").child(String.valueOf(position)).removeValue();
+                                        wishlist.remove(String.valueOf(position));
+                                        Toast.makeText(getApplicationContext(), getText(R.string.toast_Quitar_Wishlist).toString(), Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+                                }
+                            });
+                    break;
+            }
+        });
     }
 
     @Override
@@ -150,7 +313,6 @@ public class MainActivity extends AppCompatActivity implements AdaptadorLibros.I
         switch (item.getItemId()) {
 
             case R.id.nav_Cosmere: {
-                // hacer algo
                 Toast.makeText(this, getText(R.string.toast_Guia), Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(MainActivity.this, GuiaLectura.class));
                 break;
@@ -161,12 +323,12 @@ public class MainActivity extends AppCompatActivity implements AdaptadorLibros.I
                 break;
             }
             case R.id.nav_favoritos: {
-                // hacer algo
+                // TODO muestra lista de los libros en favoritos
                 Toast.makeText(getApplicationContext(), getText(R.string.toast_Favoritos_View), Toast.LENGTH_SHORT).show();
                 break;
             }
             case R.id.nav_wishlist: {
-                // hacer algo
+                // TODO muestra lista de los libros en deseados
                 Toast.makeText(getApplicationContext(), getText(R.string.toast_Wishlist_View), Toast.LENGTH_SHORT).show();
                 break;
             }
@@ -217,21 +379,6 @@ public class MainActivity extends AppCompatActivity implements AdaptadorLibros.I
         //Inflate the menu; this adds items to the action bar if it is present
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
-    }
-
-    public boolean onContextItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        switch (id) {
-            case 0:
-
-                break;
-            case 1:
-                break;
-        }
-
-        Toast.makeText(getApplicationContext(), getText(R.string.toast_Favorito).toString() + item.getGroupId(), Toast.LENGTH_SHORT).show();
-
-        return super.onContextItemSelected(item);
     }
 
 
