@@ -5,9 +5,11 @@ Final project of the subject Programación Multimedia of 2DAM
 
 A little app showcasing some of the books from the Cosmere, being able to save them to your own favorites or wishlist.
 You can also get info about what the Cosmere is and its reading guide. Featuring both English and Spanish UI language options. 
+Main Menu (English)            |  Context Menu (Spanish)
+:-------------------------:|:-------------------------:
+<img src="https://github.com/Domivat24/LibreriaAndroid/blob/master/Screenshots/Demo1.jpg?raw=true" width="200" height="400" />  |  <img src="https://github.com/Domivat24/LibreriaAndroid/blob/master/Screenshots/Demo2.jpg?raw=true" width="200" height="400"/>
 
-![alt text](https://github.com/Domivat24/LibreriaAndroid/blob/master/Screenshots/Demo1.jpg?raw=true)
-![alt text](https://github.com/Domivat24/LibreriaAndroid/blob/master/Screenshots/Demo2.jpg?raw=true)
+
 ## Getting Started
 
 ### Installing
@@ -21,7 +23,7 @@ You can also get info about what the Cosmere is and its reading guide. Featuring
 
 ## License
 
-This project is licensed under the [NAME HERE] License - see the LICENSE.md file for details
+This project is licensed under the MIT License - see the LICENSE.md file for details
 
 ## Acknowledgments
 
