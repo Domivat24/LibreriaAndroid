@@ -6,8 +6,8 @@ Final project of the subject Programación Multimedia of 2DAM
 A little app showcasing some of the books from the Cosmere, being able to save them to your own favorites or wishlist.
 You can also get info about what the Cosmere is and its reading guide. Featuring both English and Spanish UI language options. 
 
-![alt text]https://github.com/Domivat24/LibreriaAndroid/blob/master/Screenshots/Demo1.jpg?raw=true)
-![alt text]https://github.com/Domivat24/LibreriaAndroid/blob/master/Screenshots/Demo2.jpg?raw=true)
+![alt text](https://github.com/Domivat24/LibreriaAndroid/blob/master/Screenshots/Demo1.jpg?raw=true)
+![alt text](https://github.com/Domivat24/LibreriaAndroid/blob/master/Screenshots/Demo2.jpg?raw=true)
 ## Getting Started
 
 ### Installing
